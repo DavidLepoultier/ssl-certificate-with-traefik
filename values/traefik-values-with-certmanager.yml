@@ -4,23 +4,7 @@ image:
 
 deployment:
   replicas: 1
-  initContainers:
-    - name: volume-permissions
-      image: busybox:latest
-      command:
-        [
-          "sh",
-          "-c",
-          "touch /data/acme.json; chown 65532 /data/acme.json; chmod -v 600 /data/acme.json",
-        ]
-      securityContext:
-        runAsNonRoot: false
-        runAsGroup: 0
-        runAsUser: 0
-      volumeMounts:
-        - name: data
-          mountPath: /data
-
+  
 rollingUpdate:
   maxUnavailable: 0
   maxSurge: 1
@@ -48,10 +32,10 @@ additionalArguments:
 - "--providers.providersThrottleDuration=20s"
 - "--entryPoints.websecure.proxyProtocol.insecure"
 - "--entryPoints.websecure.forwardedHeaders.insecure"
-- "--certificatesresolvers.myresolver.acme.email=<your email address>"
-- "--certificatesresolvers.myresolver.acme.storage=/data/acme.json"
-- "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # Staging to test and recall certificate generation
+# - "--certificatesresolvers.myresolver.acme.email=<your email address>"
+# - "--certificatesresolvers.myresolver.acme.storage=/data/acme.json"
+# - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+# - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # Staging to test and recall certificate generation
 # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory" # Production with Rate limits
 
 logs:
@@ -72,6 +56,4 @@ ingressClass:
   enabled: true
   isDefaultClass: true
 
-persistence:
-  enabled: true
 
