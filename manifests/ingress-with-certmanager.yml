@@ -5,11 +5,11 @@ metadata:
  annotations:
    cert-manager.io/issuer: "le-example-http"
 spec:
- tls:
+  tls:
     - hosts:
         - example2.david.orangeadd.com
       secretName: tls-example-ingress-http
- rules:
+  rules:
     - host: example2.david.orangeadd.com
       http:
         paths:
