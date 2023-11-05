@@ -6,17 +6,17 @@ metadata:
    cert-manager.io/issuer: "le-example-http"
 spec:
  tls:
-   - hosts:
-       - example2.david.orangeadd.com
-     secretName: tls-example-ingress-http
+    - hosts:
+        - example2.david.orangeadd.com
+      secretName: tls-example-ingress-http
  rules:
-   - host: example2.david.orangeadd.com
-     http:
-       paths:
-         - path: /
-           pathType: Prefix
-           backend:
-             service:
-               name: example
-               port:
-                 number: 8080
+    - host: example2.david.orangeadd.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: example
+                port:
+                  number: 8080
