@@ -1,0 +1,91 @@
+# Default values for Traefik
+image:
+  name: traefik
+
+deployment:
+  replicas: 1
+  initContainers:
+    - name: volume-permissions
+      image: busybox:latest
+      command:
+        [
+          "sh",
+          "-c",
+          "touch /data/acme.json; chown 65532 /data/acme.json; chmod -v 600 /data/acme.json",
+        ]
+      securityContext:
+        runAsNonRoot: false
+        runAsGroup: 0
+        runAsUser: 0
+      volumeMounts:
+        - name: data
+          mountPath: /data
+
+rollingUpdate:
+  maxUnavailable: 0
+  maxSurge: 1
+
+globalArguments: []
+
+ports:
+  # Traefik port is use to expose or not traefik web ui (port 9000)
+  traefik:
+    expose: true
+  web:
+    redirectTo: 
+      port: websecure
+
+service:
+  # Additional annotations (e.g. for cloud provider specific config)
+  annotations: {}
+  spec: {
+    type: LoadBalancer
+  }
+
+additionalArguments:
+- "--providers.kubernetesingress.allowexternalnameservices=true"
+- "--providers.kubernetescrd.allowexternalnameservices=true"
+- "--providers.providersThrottleDuration=20s"
+- "--entryPoints.websecure.proxyProtocol.insecure"
+- "--entryPoints.websecure.forwardedHeaders.insecure"
+- "--certificatesresolvers.myresolver.acme.email=<your email address>"
+- "--certificatesresolvers.myresolver.acme.storage=/data/acme.json"
+- "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # Staging to test and recall certificate generation
+# - "--certificatesresolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory" # Production with Rate limits
+
+logs:
+  general:
+    level: DEBUG
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 60
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+    ephemeral-storage: 256Mi
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+    ephemeral-storage: 256Mi
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+persistence:
+  enabled: true
+
